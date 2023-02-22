@@ -1,0 +1,45 @@
+﻿@using ContactManager.Data.Dtos;
+@model UpdateUserDto
+@{
+    ViewData["Title"] = "Edit user";
+    var id = ViewData["Id"] as Guid?;
+}
+<div class="row">
+    <form method="post" asp-route-id="@id">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Name"></label>
+                    <input class="form-control" asp-for="Name" />
+                    <span class="text-danger" asp-validation-for="Name"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" asp-for="DateOfBirth"></label>
+                    <input class="form-control" asp-for="DateOfBirth" />
+                    <span class="text-danger" asp-validation-for="DateOfBirth"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Salary"></label>
+                    <input class="form-control" asp-for="Salary" />
+                    <span class="text-danger" asp-validation-for="Salary"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Phone"></label>
+                    <input class="form-control" asp-for="Phone" />
+                    <span class="text-danger" asp-validation-for="Phone"></span>
+                </div>
+                <div class="mb-3">
+                    <input asp-for="IsMarried" />
+                    <label class="form-label" asp-for="IsMarried"></label>
+                    <span class="text-danger" asp-validation-for="IsMarried"></span>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="row">
+                    <button class="btn btn-success" type="submit">Edit</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

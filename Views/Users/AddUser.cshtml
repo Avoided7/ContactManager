@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Add user";
+}
+
+<form enctype="multipart/form-data" method="post">
+    <div class="card">
+        <div class="card-body">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <div class="card-text">
+                <input class="form-control" name="file" type="file" />
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <button class="btn btn-success">Add</button>
+            </div>
+        </div>
+    </div>
+</form>

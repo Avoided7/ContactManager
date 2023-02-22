@@ -1,0 +1,179 @@
+﻿@using System.Globalization;
+@{
+    ViewData["Title"] = "All Users";
+    var users = ViewData["Users"] as List<User>;
+}
+<style>
+    th > a {
+        text-decoration: none;
+    }
+</style>
+
+<div class="row">
+    <a class="btn btn-success mb-3" asp-action="AddUser">Add user</a>
+    <input class="form-control mb-3" id="searchBox" type="text" oninput="filter()" placeholder="Name..." />
+    <table class="table" id="mainTable">
+        <thead>
+            <tr>
+                <th><a href="#" onclick="sortTable(0)">Name</a></th>
+                <th><a href="#" onclick="sortTable(1)">Date of Birth</a></th>
+                <th><a href="#" onclick="sortTable(2)">Married</a></th>
+                <th><a>Phone</a></th>
+                <th><a href="#" onclick="sortTable(4)">Salary</a></th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="body">
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.DateOfBirth.ToString("dd MMMM yyyy", new CultureInfo("en-US"))</td>
+                    <td>@(user.Married ? "Yes" : "No")</td>
+                    <td>@user.Phone</td>
+                    <td>@user.Salary.ToString("C2")</td>
+                    <td>    
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                        <a class="btn btn-danger" onclick="remove('@(user.Id.ToString())')">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var beginInfo = getInfo();
+    var beginRows = document.getElementById("body").cloneNode(true).rows;
+    var info = getInfo();
+    var sortedBy = { sorted: -1, type: -1 }
+    function sortTable(n)
+    {
+        var doc = document.getElementById("mainTable");
+        if (info.length ==0) return;
+        if(sortedBy.sorted == -1)
+        {
+            $('th a')[n].textContent += " +";
+            sortedBy.sorted = n;
+            sortedBy.type = 1;
+            if(info[0][n] * 0 == 0)
+            {
+                info = beginInfo.slice().sort((a, b) => a[n] - b[n]);
+            }
+            else
+            {
+                info = beginInfo.slice().sort((a, b) => a[n].localeCompare(b[n]));
+            }
+            
+        }
+        else
+        {
+            $('th a')[sortedBy.sorted].textContent = $('th a')[sortedBy.sorted].textContent.replace(" +", "");
+            $('th a')[sortedBy.sorted].textContent = $('th a')[sortedBy.sorted].textContent.replace(" -", "");
+            if (sortedBy.sorted == n && sortedBy.type == 1)
+            {
+                sortedBy.type = (sortedBy.type + 1) % 2;
+                if (info[0][n] * 0 == 0) {
+                    info = beginInfo.slice().sort((a, b) => b[n] - a[n]);
+                }
+                else {
+                    info = beginInfo.slice().sort((a, b) => b[n].localeCompare(a[n]));
+                }
+
+                
+                $('th a')[sortedBy.sorted].textContent += (sortedBy.type == 0 ? " -" : " +");
+
+            }
+            else
+            {
+                sortedBy.sorted = n;
+                sortedBy.type = 1
+                if (info[0][n] * 0 == 0) {
+                    info = beginInfo.slice().sort((a, b) => a[n] - b[n]);
+                }
+                else {
+                    info = beginInfo.slice().sort((a, b) => a[n].localeCompare(b[n]));
+                }
+                
+                $('th a')[sortedBy.sorted].textContent += (sortedBy.type == 0 ? " -" : " +");
+            }
+        }
+        equalTables();
+    }
+    function filter()
+    {
+        var search = document.getElementById("searchBox").value;
+        var table = document.getElementById("body");
+        var rows = table.rows;
+        for (var row of rows)
+        {
+            var name = row.getElementsByTagName("td")[0].textContent;
+            if (name.toLowerCase().includes(search.toLowerCase()))
+            {
+                row.style = "";
+            }
+            else
+            {
+                row.style = "display: none;"
+            }
+        }
+    }
+    function remove(id)
+    {
+        var result = confirm();
+        if(result == true)
+        {
+            window.location.replace("https://localhost:7087/Users/RemoveUser/" + id);
+        }
+    }
+    function getInfo()
+    {
+        var totalInfo = []
+        var table = document.getElementById("body");
+        var rows = table.rows;
+        var index = 0;
+        for(var row of rows)
+        {
+            var object = []
+            for (var data of row.cells)
+            {
+                if(object.length == 1)
+                {
+                    object.push(Date.parse(data.textContent));
+                    continue;
+                }
+                if (object.length == 4)
+                {
+                    var price = data.textContent.split(',')[0];
+                    price = price.replaceAll(/\s/g, "");
+                    object.push(+price);
+                    break;
+                }
+                object.push(data.textContent);
+            }
+            object.push(index);
+            index++;
+            totalInfo.push(object);
+        }
+        return totalInfo;
+    }
+    function equalTables()
+    {
+        var table = document.getElementById("body");
+        var rows = table.rows;
+        var lastIndex = info[0].length - 1;
+        var index = 0;
+        var newRows = [];
+        
+        for(var data of info)
+        {
+            newRows.push(beginRows[data[lastIndex]].innerHTML.split('').join(''));
+        }
+
+        for(var data of newRows)
+        {
+            rows[index].innerHTML = data;
+            index++;
+        }
+    }
+</script>
