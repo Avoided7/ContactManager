@@ -1,4 +1,5 @@
 using ContactManager.Data;
+using ContactManager.Data.Dtos;
 using ContactManager.Services;
 using ContactManager.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace ContactManager
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ICSVFileReader<AddUserDto>, CSVFileReader<AddUserDto>>();
 
             var connectionString = builder.Configuration.GetConnectionString("ContactManagerContext");
             builder.Services.AddDbContext<ContactManagerContext>(options => options.UseSqlServer(connectionString));

@@ -7,8 +7,9 @@ namespace ContactManager.Services.Interfaces
     {
         Task<List<User>> GetAllAsync();
         Task<User?> GetByIdAsync(Guid id);
-        Task<User> AddUserAsync(AddUserDto model);
-        Task<User?> EditUserAsync(Guid id, UpdateUserDto model);
-        Task<User?> DeleteUserAsync(Guid id);
+        Task<User> AddAsync(AddUserDto model);
+        Task<IEnumerable<User>> AddRangeAsync(IEnumerable<AddUserDto> model);
+        Task<User?> EditAsync(Guid id, UpdateUserDto model);
+        Task<User?> DeleteAsync(Guid id);
     }
 }

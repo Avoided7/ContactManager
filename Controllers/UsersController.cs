@@ -1,5 +1,6 @@
 ﻿using ContactManager.Data.Dtos;
 using ContactManager.Services.Interfaces;
+using ContactManager.Новая_папка;
 using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -9,15 +10,18 @@ namespace ContactManager.Controllers
     public class UsersController : Controller
     {
         private readonly IUserService _userService;
+        private readonly ICSVFileReader<AddUserDto> _fileReader;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService,
+                               ICSVFileReader<AddUserDto> fileReader)
         {
             _userService = userService;
+            _fileReader = fileReader;
         }
         public async Task<ActionResult> All()
         {
-            ViewData["Users"] = await _userService.GetAllAsync();
-            return View();
+            var users = await _userService.GetAllAsync();
+            return View(users);
         }
         [HttpGet]
         public ActionResult AddUser()
@@ -32,23 +36,13 @@ namespace ContactManager.Controllers
                 ModelState.AddModelError("", "Only csv files.");
                 return View();
             }
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    var records = csv.GetRecords<AddUserDto>();
-                    foreach(var record in records)
-                    {
-                        await _userService.AddUserAsync(record);
-                    }
-
-                }
-            }
+            var records = _fileReader.ReadFromFileAll(file);
+            await _userService.AddRangeAsync(records);
             return RedirectToAction(nameof(All));
         }
         public async Task<ActionResult> RemoveUser(Guid id)
         {
-            var deletedUser = await _userService.DeleteUserAsync(id);
+            var deletedUser = await _userService.DeleteAsync(id);
             if (deletedUser == null)
             {
                 return BadRequest();
@@ -62,14 +56,7 @@ namespace ContactManager.Controllers
             var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
 
-            var userDto = new UpdateUserDto()
-            {
-                Name = user.Name,
-                Salary = user.Salary,
-                DateOfBirth = user.DateOfBirth,
-                IsMarried = user.Married,
-                Phone = user.Phone
-            };
+            var userDto = user.ConvertToUpdateDto();
             ViewData["Id"] = id;
             return View(userDto);
         }
@@ -81,7 +68,7 @@ namespace ContactManager.Controllers
                 ViewData["Id"] = id;
                 return View(userDto);
             }
-            var user = await _userService.EditUserAsync(id, userDto);
+            var user = await _userService.EditAsync(id, userDto);
             if (user == null) return BadRequest();
 
             return RedirectToAction(nameof(All));

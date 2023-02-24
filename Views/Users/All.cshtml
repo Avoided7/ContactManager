@@ -1,7 +1,6 @@
 ﻿@using System.Globalization;
 @{
     ViewData["Title"] = "All Users";
-    var users = ViewData["Users"] as List<User>;
 }
 <style>
     th > a {
@@ -24,7 +23,7 @@
             </tr>
         </thead>
         <tbody id="body">
-            @foreach (var user in users)
+            @foreach (var user in Model)
             {
                 <tr>
                     <td>@user.Name</td>

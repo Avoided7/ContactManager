@@ -13,7 +13,7 @@ namespace ContactManager.Services
         {
             _dbContext = dbContext;
         }
-        public async Task<User> AddUserAsync(AddUserDto model)
+        public async Task<User> AddAsync(AddUserDto model)
         {
             var newUser = new User
             {
@@ -29,7 +29,27 @@ namespace ContactManager.Services
             return newUser;
         }
 
-        public async Task<User?> DeleteUserAsync(Guid id)
+        public async Task<IEnumerable<User>> AddRangeAsync(IEnumerable<AddUserDto> model)
+        {
+            var newUsers = new List<User>();
+            foreach(var user in model)
+            {
+                var newUser = new User
+                {
+                    Name = user.Name,
+                    Salary = user.Salary,
+                    DateOfBirth = user.DateOfBirth,
+                    Married = user.Married,
+                    Phone = user.Phone
+                };
+                newUsers.Add(newUser);
+            }
+            await _dbContext.Users.AddRangeAsync(newUsers);
+            await _dbContext.SaveChangesAsync();
+            return newUsers;
+        }
+
+        public async Task<User?> DeleteAsync(Guid id)
         {
             var user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == id);
             if(user != null)
@@ -41,7 +61,7 @@ namespace ContactManager.Services
             return user;
         }
 
-        public async Task<User?> EditUserAsync(Guid id, UpdateUserDto model)
+        public async Task<User?> EditAsync(Guid id, UpdateUserDto model)
         {
             var user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == id);
 
